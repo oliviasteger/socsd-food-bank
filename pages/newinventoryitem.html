@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>SO BOTZ Inventory</title>
+    <link href="https://fonts.googleapis.com/css?family=Muli:400,700" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.4.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.5.7/firebase-firestore.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyCh7EwTD7KLDpPcdapk5UkEYg2tynPouxY",
+            authDomain: "socsd-food-bank.firebaseapp.com",
+            databaseURL: "https://socsd-food-bank.firebaseio.com",
+            projectId: "socsd-food-bank",
+            storageBucket: "socsd-food-bank.appspot.com",
+            messagingSenderId: "1067775835047",
+            appId: "1:1067775835047:web:f027109d79f6f0b1599482"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    <style>
+        img {
+            width: 265px;
+            margin: 20px;
+        }
+
+        body {
+            font-family: 'Muli', sans-serif;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        button {
+            font-family: 'Muli', sans-serif;
+            width: 100px;
+            font-size: 16px;
+            color: white;
+            background-color: #db4437;
+            border: 0px;
+            padding: 10px;
+            margin: 10px;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        th {
+            background-color: #eee;
+            height: 30px;
+            padding: 5px;
+            color: #db4437;
+        }
+
+        td {
+            background-color: #eee;
+            height: 30px;
+            padding: 5px;
+            padding-left: 10px;
+        }
+
+        .header {
+            font-family: 'Muli', sans-serif;
+            color: #4285f4;
+        }
+
+        input {
+            font-family: 'Muli', sans-serif;
+            width: 245px;
+            font-size: 20px;
+            color: white;
+            background-color: #4285f4;
+            border: 0px;
+            padding: 10px;
+            margin: 10px;
+        }
+
+        select {
+            border-radius: 0;
+            font-family: 'Muli', sans-serif;
+            width: 265px;
+            height: 45px;
+            font-size: 20px;
+            color: white;
+            background-color: #4285f4;
+            border: 0px;
+            padding: 10px;
+            margin: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <center>
+            <br><br>
+            <h2 class="header">Add inventory item</h2><br>
+            <p>What is the item's category?</p>
+            <select id="category">
+                <option value="Pasta/Rice/Beans">Pasta/Rice/Beans</option>
+                <option value="Canned Fruit/Vegetables">Canned Fruit/Vegetables</option>
+                <option value="Cereal/Granola/Breakfast Bars">Cereal/Granola/Breakfast Bars</option>
+                <option value="Juice Boxes/Drinks">Juice Boxes/Drinks</option>
+                <option value="Stuffing/Yams/Cranberry Sauce">Stuffing/Yams/Cranberry Sauce</option>
+                <option value="Mashed Potatoes/Mac n’ Cheese">Mashed Potatoes/Mac n’ Cheese</option>
+                <option value="Peanut Butter/Jelly/Condiments">Peanut Butter/Jelly/Condiments</option>
+                <option value="Milk">Milk</option>
+                <option value="Cheese">Cheese</option>
+                <option value="Eggs">Eggs</option>
+                <option value="Yogurt">Yogurt</option>
+                <option value="Bread/Bagels/Rolls/Tortillas">Bread/Bagels/Rolls/Tortillas</option>
+                <option value="Fresh Fruit/Vegetables">Fresh Fruit/Vegetables</option>
+                <option value="Soap/Body Wash">Soap/Body Wash</option>
+                <option value="Shampoo/Conditioner">Shampoo/Conditioner</option>
+                <option value="Toothpaste/Toothbrushes">Toothpaste/Toothbrushes</option>
+                <option value="Deodorant">Deodorant</option>
+                <option value="Body Lotion">Body Lotion</option>
+            </select>
+            <p>What is the item being added?</p>
+            <input type="text" id="item"></input><br>
+            <p>Is the item being stored in the kitchen or in the closet?</p>
+            <select id="location" onchange="report(this.value)">
+                <option value="Kitchen">Kitchen</option>
+                <option value="Closet">Closet</option>
+            </select>
+            <p>Is the item being refrigerated?</p>
+            <select id="refrigerated">
+                <option value="Refrigerated">Yes</option>
+                <option value="">No</option>
+            </select>
+            <p>Where is the item being stored? <br>(Ex. A1 for shelf A, section 1)</p>
+            <input type="text" id="shelf"></input><br>
+            <p>What is the estimated price per unit of the item?</p>
+            <input type="number" id="price"></input><br>
+            <p>How many of the item are currently in inventory?</p>
+            <input type="number" id="quantity"></input><br>
+            <p>What is the serving size for the item?</p>
+            <select id="serving">
+                <option value="Single">Single</option>
+                <option value="Family">Family</option>
+            </select><br><br>
+            <button id="submit">Submit</button><br><br>
+    </div>
+
+    <script>
+        $("#submit").click(function () {
+            var db = firebase.firestore();
+
+            let location = $("#location").val();
+
+            if ($("#refrigerated").val() == "Refrigerated") {
+                location += ", Refrigerated";
+            } else {
+                location += ", " + $("#shelf").val();
+            }
+
+            db.collection("inventory").add({
+                category: $("#category").val(),
+                item: $("#item").val(),
+                location: location,
+                price: $("#price").val(),
+                quantity: $("#quantity").val(),
+                serving: $("#serving").val()
+            })
+
+                .then(function (docRef) {
+                    console.log("Document written with ID: ", docRef.id);
+                    window.location.href = "inventory.html";
+                })
+                .catch(function (error) {
+                    console.error("Error adding document: ", error);
+                });
+
+        });
+    </script>
+</body>
+
+</html>
