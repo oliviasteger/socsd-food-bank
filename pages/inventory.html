@@ -125,17 +125,19 @@
                     cell.style.backgroundColor = backgroundColor;
                     cell.align = "center";
 
+                    let k = i;
+
                     var removeButton = document.createElement('button');
                     removeButton.innerHTML = 'Remove Unit';
                     removeButton.onclick = function () {
-                        onRemove(doc.data().item, i, doc.id)
+                        onRemove(doc.data().item, k, doc.id)
                     };
 
                     var addButton = document.createElement('button');
                     addButton.innerHTML = 'Add Unit';
                     addButton.style.backgroundColor = "#4285f4";
                     addButton.onclick = function () {
-                        onAdd(doc.data().item, i, doc.id)
+                        onAdd(doc.data().item, k, doc.id)
                     };
 
                     cell.appendChild(removeButton);
@@ -146,13 +148,13 @@
             });
         });
 
-        function onRemove(name, i, id) {
-            let myCell = parseInt(document.getElementById('inventory').getElementsByTagName('td')[((i - 2) * 6) + 4].innerHTML);
+        function onRemove(name, row, id) {
+            let myCell = parseInt(document.getElementById('inventory').getElementsByTagName('td')[(row * 6) + (row % 6) - 3].innerHTML);
             myCell = myCell - 1;
-            document.getElementById('inventory').getElementsByTagName('td')[((i - 2) * 6) + 4].innerHTML = myCell;
+            document.getElementById('inventory').getElementsByTagName('td')[(row * 6) + (row % 6) - 3].innerHTML = myCell;
 
             db.collection("inventory").doc(id).update({
-                quantity: myCell,
+                quantity: parseInt(myCell),
             }).then(function (docRef) {
                 console.log("Updated successfully.");
             });
@@ -163,18 +165,18 @@
             }
 
             for (let j = 0; j < 7; j++) {
-                document.getElementById('inventory').getElementsByTagName('td')[((i - 2) * 6) + j].style.backgroundColor = backgroundColor;
+                document.getElementById('inventory').getElementsByTagName('td')[(row * 7) - 7 + j].style.backgroundColor = backgroundColor;
             }
 
         }
 
-        function onAdd(name, i, id) {
-            let myCell = parseInt(document.getElementById('inventory').getElementsByTagName('td')[((i - 2) * 6) + 4].innerHTML);
+        function onAdd(name, row, id) {
+            let myCell = parseInt(document.getElementById('inventory').getElementsByTagName('td')[(row * 6) + (row % 6) - 3].innerHTML);
             myCell = myCell + 1;
-            document.getElementById('inventory').getElementsByTagName('td')[((i - 2) * 6) + 4].innerHTML = myCell;
+            document.getElementById('inventory').getElementsByTagName('td')[(row * 6) + (row % 6) - 3].innerHTML = myCell;
 
             db.collection("inventory").doc(id).update({
-                quantity: myCell,
+                quantity: parseInt(myCell),
             }).then(function (docRef) {
                 console.log("Updated successfully.");
             });
@@ -185,7 +187,7 @@
             }
 
             for (let j = 0; j < 7; j++) {
-                document.getElementById('inventory').getElementsByTagName('td')[((i - 2) * 6) + j].style.backgroundColor = backgroundColor;
+                document.getElementById('inventory').getElementsByTagName('td')[(row * 7) - 7 + j].style.backgroundColor = backgroundColor;
             }
         }
 
