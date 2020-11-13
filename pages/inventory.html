@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>SO BOTZ Inventory</title>
+    <link href="https://fonts.googleapis.com/css?family=Muli:400,700" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.4.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.5.7/firebase-firestore.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyCh7EwTD7KLDpPcdapk5UkEYg2tynPouxY",
+            authDomain: "socsd-food-bank.firebaseapp.com",
+            databaseURL: "https://socsd-food-bank.firebaseio.com",
+            projectId: "socsd-food-bank",
+            storageBucket: "socsd-food-bank.appspot.com",
+            messagingSenderId: "1067775835047",
+            appId: "1:1067775835047:web:f027109d79f6f0b1599482"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    <style>
+        img {
+            width: 265px;
+            margin: 20px;
+        }
+
+        body {
+            font-family: 'Muli', sans-serif;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        button {
+            font-family: 'Muli', sans-serif;
+            /* width: 100px;*/
+            font-size: 16px;
+            color: white;
+            background-color: #db4437;
+            border: 0px;
+            padding: 10px;
+            margin: 10px;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        th {
+            background-color: #eee;
+            height: 30px;
+            padding: 5px;
+            color: #db4437;
+        }
+
+        td {
+            background-color: #eee;
+            height: 30px;
+            padding: 5px;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <table id="inventory">
+            <tr>
+                <th>Category</th>
+                <th onclick="sortTable(1)">Item</th>
+                <th>Location</th>
+                <th>Serving Size</th>
+                <th>Quantity</th>
+                <th>Price per unit</th>
+                <th>Actions</th>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        var db = firebase.firestore();
+        db.collection("inventory").get().then(function (querySnapshot) {
+            var table = document.getElementById("inventory");
+            var i = 1;
+            querySnapshot.forEach(function (doc) {
+                if (doc.data().quantity != 0) {
+                    var row = table.insertRow(i);
+
+                    let backgroundColor = "#eee"
+
+                    if (parseInt(doc.data().quantity) <= 15) {
+                        backgroundColor = "#ffcc99";
+                    }
+
+                    var cell = row.insertCell(0);
+                    cell.style.backgroundColor = backgroundColor;
+                    cell.innerHTML = doc.data().category;
+
+                    cell = row.insertCell(1);
+                    cell.style.backgroundColor = backgroundColor;
+                    cell.innerHTML = doc.data().item;
+
+                    cell = row.insertCell(2);
+                    cell.style.backgroundColor = backgroundColor;
+                    cell.innerHTML = doc.data().location;
+
+                    cell = row.insertCell(3);
+                    cell.style.backgroundColor = backgroundColor;
+                    cell.innerHTML = doc.data().serving;
+
+                    cell = row.insertCell(4);
+                    cell.style.backgroundColor = backgroundColor;
+                    cell.innerHTML = doc.data().quantity;
+
+                    cell = row.insertCell(5);
+                    cell.style.backgroundColor = backgroundColor;
+                    cell.innerHTML = doc.data().price;
+
+                    cell = row.insertCell(6);
+                    cell.style.backgroundColor = backgroundColor;
+                    cell.align = "center";
+
+                    var removeButton = document.createElement('button');
+                    removeButton.innerHTML = 'Remove Unit';
+                    removeButton.onclick = function () {
+                        onRemove(doc.data().item, i, doc.id)
+                    };
+
+                    var addButton = document.createElement('button');
+                    addButton.innerHTML = 'Add Unit';
+                    addButton.style.backgroundColor = "#4285f4";
+                    addButton.onclick = function () {
+                        onAdd(doc.data().item, i, doc.id)
+                    };
+
+                    cell.appendChild(removeButton);
+                    cell.appendChild(addButton);
+
+                    i++;
+                }
+            });
+        });
+
+        function onRemove(name, i, id) {
+            let myCell = parseInt(document.getElementById('inventory').getElementsByTagName('td')[((i - 2) * 6) + 4].innerHTML);
+            myCell = myCell - 1;
+            document.getElementById('inventory').getElementsByTagName('td')[((i - 2) * 6) + 4].innerHTML = myCell;
+
+            db.collection("inventory").doc(id).update({
+                quantity: myCell,
+            }).then(function (docRef) {
+                console.log("Updated successfully.");
+            });
+
+            let backgroundColor = "#eee"
+            if (myCell <= 15) {
+                backgroundColor = "#ffcc99";
+            }
+
+            for (let j = 0; j < 7; j++) {
+                document.getElementById('inventory').getElementsByTagName('td')[((i - 2) * 6) + j].style.backgroundColor = backgroundColor;
+            }
+
+        }
+
+        function onAdd(name, i, id) {
+            let myCell = parseInt(document.getElementById('inventory').getElementsByTagName('td')[((i - 2) * 6) + 4].innerHTML);
+            myCell = myCell + 1;
+            document.getElementById('inventory').getElementsByTagName('td')[((i - 2) * 6) + 4].innerHTML = myCell;
+
+            db.collection("inventory").doc(id).update({
+                quantity: myCell,
+            }).then(function (docRef) {
+                console.log("Updated successfully.");
+            });
+
+            let backgroundColor = "#eee"
+            if (myCell <= 15) {
+                backgroundColor = "#ffcc99";
+            }
+
+            for (let j = 0; j < 7; j++) {
+                document.getElementById('inventory').getElementsByTagName('td')[((i - 2) * 6) + j].style.backgroundColor = backgroundColor;
+            }
+        }
+
+        function sortTable(n) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("inventory");
+            switching = true;
+            dir = "asc";
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else {
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
