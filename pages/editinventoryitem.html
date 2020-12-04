@@ -151,9 +151,32 @@
     </div>
 
     <script>
+        $(document).ready(function () {
+            var db = firebase.firestore();
+            db.collection("inventory").get().then(function (querySnapshot) {
+                querySnapshot.forEach(function (doc) {
+                    if (doc.id == Cookies.get("docID")) {
+                        document.getElementById("category").value = doc.data().category;
+                        document.getElementById("item").value = doc.data().item;
+                        document.getElementById("location").value = doc.data().location.split(',')[0];
+
+                        if ((doc.data().location.split(',')[1]).includes("Refrigerated") == true) {
+                            document.getElementById("refrigerated").value = "Refrigerated";
+                        } else {
+                            document.getElementById("refrigerated").value = "";
+                            document.getElementById("shelf").value = doc.data().location.split(',')[1].substring(1);
+                        }
+
+                        document.getElementById("serving").value = doc.data().serving;
+                        document.getElementById("quantity").value = parseInt(doc.data().quantity);
+                        document.getElementById("price").value = doc.data().price;
+                    }
+                });
+            })
+        })
+
         $("#submit").click(function () {
             var db = firebase.firestore();
-
             let location = $("#location").val();
 
             if ($("#refrigerated").val() == "Refrigerated") {
@@ -162,23 +185,24 @@
                 location += ", " + $("#shelf").val();
             }
 
-            db.collection("inventory").add({
-                category: $("#category").val(),
-                item: $("#item").val(),
-                location: location,
-                price: $("#price").val(),
-                quantity: parseInt($("#quantity").val()),
-                serving: $("#serving").val()
-            })
-
-                .then(function (docRef) {
-                    console.log("Document written with ID: ", docRef.id);
-                    window.location.href = "inventory.html";
+            db.collection("inventory").get().then(function (querySnapshot) {
+                querySnapshot.forEach(function (doc) {
+                    if (doc.data().item === $("#item").val()) {
+                        db.collection("inventory").doc(doc.id).update({
+                            category: $("#category").val(),
+                            item: $("#item").val(),
+                            location: location,
+                            price: $("#price").val(),
+                            quantity: parseInt($("#quantity").val()),
+                            serving: $("#serving").val()
+                        }).then(function () {
+                            window.location.href = "inventory.html";
+                        }).catch(function (error) {
+                            console.error("Error adding document: ", error);
+                        });
+                    }
                 })
-                .catch(function (error) {
-                    console.error("Error adding document: ", error);
-                });
-
+            })
         });
     </script>
 </body>

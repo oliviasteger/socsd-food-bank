@@ -140,8 +140,16 @@
                         onAdd(doc.data().item, k, doc.id)
                     };
 
+                    var editButton = document.createElement('button');
+                    editButton.innerHTML = 'Edit Items';
+                    editButton.style.backgroundColor = "green";
+                    editButton.onclick = function () {
+                        onEdit(doc.data().item, k, doc.id)
+                    };
+
                     cell.appendChild(removeButton);
                     cell.appendChild(addButton);
+                    cell.appendChild(editButton);
 
                     i++;
                 }
@@ -192,6 +200,11 @@
             for (let j = 0; j < 7; j++) {
                 document.getElementById('inventory').getElementsByTagName('td')[((row - 1) * 7) + j].style.backgroundColor = backgroundColor;
             }
+        }
+
+        function onEdit(name, row, id) {
+            Cookies.set("docID", id);
+            window.location.href = "editinventoryitem.html";
         }
 
         function sortTable(n) {
