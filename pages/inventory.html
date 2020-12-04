@@ -149,9 +149,12 @@
         });
 
         function onRemove(name, row, id) {
-            let myCell = parseInt(document.getElementById('inventory').getElementsByTagName('td')[(row * 6) + (row % 6) - 3].innerHTML);
+            console.log(name, row, id);
+            console.log(document.getElementById('inventory').getElementsByTagName('td'));
+
+            let myCell = parseInt(document.getElementById('inventory').getElementsByTagName('td')[((row - 1) * 7) + 4].innerHTML);
             myCell = myCell - 1;
-            document.getElementById('inventory').getElementsByTagName('td')[(row * 6) + (row % 6) - 3].innerHTML = myCell;
+            document.getElementById('inventory').getElementsByTagName('td')[((row - 1) * 7) + 4].innerHTML = myCell;
 
             db.collection("inventory").doc(id).update({
                 quantity: parseInt(myCell),
@@ -165,15 +168,15 @@
             }
 
             for (let j = 0; j < 7; j++) {
-                document.getElementById('inventory').getElementsByTagName('td')[(row * 7) - 7 + j].style.backgroundColor = backgroundColor;
+                document.getElementById('inventory').getElementsByTagName('td')[((row - 1) * 7) + j].style.backgroundColor = backgroundColor;
             }
 
         }
 
         function onAdd(name, row, id) {
-            let myCell = parseInt(document.getElementById('inventory').getElementsByTagName('td')[(row * 6) + (row % 6) - 3].innerHTML);
+            let myCell = parseInt(document.getElementById('inventory').getElementsByTagName('td')[((row - 1) * 7) + 4].innerHTML);
             myCell = myCell + 1;
-            document.getElementById('inventory').getElementsByTagName('td')[(row * 6) + (row % 6) - 3].innerHTML = myCell;
+            document.getElementById('inventory').getElementsByTagName('td')[((row - 1) * 7) + 4].innerHTML = myCell;
 
             db.collection("inventory").doc(id).update({
                 quantity: parseInt(myCell),
@@ -187,7 +190,7 @@
             }
 
             for (let j = 0; j < 7; j++) {
-                document.getElementById('inventory').getElementsByTagName('td')[(row * 7) - 7 + j].style.backgroundColor = backgroundColor;
+                document.getElementById('inventory').getElementsByTagName('td')[((row - 1) * 7) + j].style.backgroundColor = backgroundColor;
             }
         }
 
